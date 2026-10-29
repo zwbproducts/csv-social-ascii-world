@@ -12,7 +12,7 @@
 #include <fcntl.h>
 #include <sys/select.h>
 #include <signal.h>
-#include <errno.h>
+#include <cerrno>
 
 using namespace std;
 
