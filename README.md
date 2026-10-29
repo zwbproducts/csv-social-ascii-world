@@ -120,7 +120,7 @@ make run      # build and run
 make clean    # remove binary
 ```
 
-Code style: C++11, `-Wall -Wextra`, no external dependencies.
+Code style: C++11, `-Wall`, no external dependencies.
 
 ---
 
