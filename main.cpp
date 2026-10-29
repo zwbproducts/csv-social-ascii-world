@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
+#include <cstring>
 #include <ctime>
 #include <map>
 #include <algorithm>
@@ -12,6 +13,7 @@
 #include <fcntl.h>
 #include <sys/select.h>
 #include <signal.h>
+#include <cerrno>
 
 using namespace std;
 
@@ -438,8 +440,16 @@ int main(int argc, char** argv) {
         FD_ZERO(&fds);
         FD_SET(STDIN_FILENO, &fds);
         struct timeval tv = {0, 100000};
-        if (select(STDIN_FILENO + 1, &fds, NULL, NULL, &tv) > 0) {
+        int sel;
+        do {
+            fd_set tmp = fds;
+            sel = select(STDIN_FILENO + 1, &tmp, NULL, NULL, &tv);
+        } while (sel < 0 && errno == EINTR);
+        if (sel > 0) {
             if (read(STDIN_FILENO, &ch, 1) == 1) gotInput = true;
+        } else if (sel < 0) {
+            cerr << "select failed: " << strerror(errno) << endl;
+            break;
         }
 
         if (gotInput) {
