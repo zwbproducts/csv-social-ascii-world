@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #include <sys/select.h>
 #include <signal.h>
+#include <errno.h>
 
 using namespace std;
 
@@ -438,8 +439,11 @@ int main(int argc, char** argv) {
         FD_ZERO(&fds);
         FD_SET(STDIN_FILENO, &fds);
         struct timeval tv = {0, 100000};
-        if (select(STDIN_FILENO + 1, &fds, NULL, NULL, &tv) > 0) {
+        int sel = select(STDIN_FILENO + 1, &fds, NULL, NULL, &tv);
+        if (sel > 0) {
             if (read(STDIN_FILENO, &ch, 1) == 1) gotInput = true;
+        } else if (sel < 0 && errno != EINTR) {
+            // Transient select error; keep running
         }
 
         if (gotInput) {
